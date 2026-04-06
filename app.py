@@ -41,7 +41,29 @@ def get_conn():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
-
+def init_db():
+    conn = sqlite3.connect("signals.db")
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS signals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trade_date TEXT,
+        trade_time TEXT,
+        assistant_name TEXT,
+        instrument TEXT,
+        direction TEXT,
+        structure_type TEXT,
+        signal_type TEXT,
+        screenshot_link TEXT,
+        moved_as_expected TEXT,
+        mfe_r REAL,
+        mae_r REAL,
+        achieved_rr REAL,
+        notes TEXT,
+        created_at TEXT
+    )
+    """)
+    conn.commit()
+    conn.close()
 def init_db():
     with get_conn() as conn:
         conn.execute(CREATE_TABLE_SQL)
@@ -239,3 +261,4 @@ def export_csv():
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
+init_db()
