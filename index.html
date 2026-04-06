@@ -1,0 +1,132 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1 style="margin:0;">交易信号后台</h1>
+    <div class="muted">吞没信号 + 结构位 + 助理分工统计</div>
+  </div>
+  <div>
+    <a class="btn btn-primary" href="{{ url_for('new_signal') }}">新增信号</a>
+  </div>
+</div>
+
+<div class="card">
+  <form method="get" class="filters">
+    <div>
+      <label>助理</label>
+      <select name="assistant">
+        <option>全部</option>
+        {% for item in options.assistants %}
+          <option value="{{ item }}" {% if filters.assistant == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>品种</label>
+      <select name="instrument">
+        <option>全部</option>
+        {% for item in options.instruments %}
+          <option value="{{ item }}" {% if filters.instrument == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>结构位</label>
+      <select name="structure">
+        <option>全部</option>
+        {% for item in options.structures %}
+          <option value="{{ item }}" {% if filters.structure == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label>方向</label>
+      <select name="direction">
+        {% for item in ["全部", "Long", "Short"] %}
+          <option value="{{ item }}" {% if filters.direction == item %}selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <button class="btn btn-primary" type="submit">应用筛选</button>
+      <a class="btn btn-secondary" href="{{ url_for('index') }}">重置</a>
+      <a class="btn btn-secondary" href="{{ url_for('export_csv', assistant=filters.assistant, instrument=filters.instrument, structure=filters.structure, direction=filters.direction) }}">导出CSV</a>
+    </div>
+  </form>
+</div>
+
+<div class="grid">
+  <div class="card stat"><div class="muted">总信号数</div><div style="font-size:28px;">{{ stats.total }}</div></div>
+  <div class="card stat"><div class="muted">命中率</div><div style="font-size:28px;">{{ stats.hit_rate }}%</div></div>
+  <div class="card stat"><div class="muted">平均 MFE</div><div style="font-size:28px;">{{ stats.avg_mfe if stats.avg_mfe is not none else "-" }}R</div></div>
+  <div class="card stat"><div class="muted">平均 RR</div><div style="font-size:28px;">1:{{ stats.avg_rr if stats.avg_rr is not none else "-" }}</div></div>
+</div>
+
+<div class="charts">
+  <div class="card"><canvas id="structureChart"></canvas></div>
+  <div class="card"><canvas id="assistantChart"></canvas></div>
+</div>
+
+<div class="card">
+  <h3>信号记录</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>日期</th><th>时间</th><th>助理</th><th>品种</th><th>方向</th><th>结构位</th><th>信号</th><th>预期</th><th>MFE</th><th>MAE</th><th>RR</th><th>截图</th><th>备注</th><th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.id }}</td>
+        <td>{{ row.trade_date }}</td>
+        <td>{{ row.trade_time }}</td>
+        <td>{{ row.assistant_name }}</td>
+        <td>{{ row.instrument }}</td>
+        <td>{{ row.direction }}</td>
+        <td>{{ row.structure_type }}</td>
+        <td>{{ row.signal_type }}</td>
+        <td>{{ row.moved_as_expected }}</td>
+        <td>{{ row.mfe_r if row.mfe_r is not none else "" }}</td>
+        <td>{{ row.mae_r if row.mae_r is not none else "" }}</td>
+        <td>{{ row.achieved_rr if row.achieved_rr is not none else "" }}</td>
+        <td>{% if row.screenshot_link %}<a href="{{ row.screenshot_link }}" target="_blank">查看</a>{% endif %}</td>
+        <td>{{ row.notes }}</td>
+        <td>
+          <form class="inline" method="post" action="{{ url_for('delete_signal', signal_id=row.id) }}" onsubmit="return confirm('确定删除这条记录吗？');">
+            <button class="btn btn-secondary" type="submit">删除</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const structureLabels = {{ stats.structure_counts.keys()|list|tojson }};
+  const structureValues = {{ stats.structure_counts.values()|list|tojson }};
+  const assistantLabels = {{ stats.assistant_hit_rates.keys()|list|tojson }};
+  const assistantValues = {{ stats.assistant_hit_rates.values()|list|tojson }};
+
+  new Chart(document.getElementById('structureChart'), {
+    type: 'bar',
+    data: {
+      labels: structureLabels,
+      datasets: [{ label: '信号数量', data: structureValues }]
+    }
+  });
+
+  new Chart(document.getElementById('assistantChart'), {
+    type: 'bar',
+    data: {
+      labels: assistantLabels,
+      datasets: [{ label: '助理命中率(%)', data: assistantValues }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true, max: 100 } }
+    }
+  });
+</script>
+{% endblock %}

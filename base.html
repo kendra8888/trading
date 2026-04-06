@@ -1,0 +1,45 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>交易信号后台</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fb; color: #222; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn { display: inline-block; padding: 10px 14px; border-radius: 10px; text-decoration: none; border: 0; cursor: pointer; }
+    .btn-primary { background: #111827; color: white; }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .card { background: white; border-radius: 16px; padding: 18px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); margin-bottom: 18px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat { padding: 14px; background: #f9fafb; border-radius: 12px; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .flash { padding: 12px 14px; border-radius: 10px; margin-bottom: 12px; }
+    .flash.success { background: #dcfce7; }
+    .flash.error { background: #fee2e2; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
+    th { background: #fafafa; }
+    form.inline { display: inline; }
+    .filters { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: end; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 10px; box-sizing: border-box; }
+    textarea { min-height: 100px; }
+    .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
