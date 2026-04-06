@@ -1,0 +1,59 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="topbar">
+  <div>
+    <h1 style="margin:0;">新增信号</h1>
+    <div class="muted">只记录结构位上的吞没信号</div>
+  </div>
+  <div>
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">返回后台</a>
+  </div>
+</div>
+
+<div class="card">
+  <form method="post">
+    <div class="filters" style="grid-template-columns: repeat(2, 1fr);">
+      <div><label>日期</label><input name="trade_date" value="{{ today }}" required></div>
+      <div><label>时间</label><input name="trade_time" value="{{ current_time }}" required></div>
+      <div><label>助理姓名</label><input name="assistant_name" required></div>
+      <div><label>品种</label><input name="instrument" required></div>
+      <div>
+        <label>方向</label>
+        <select name="direction">
+          {% for item in direction_options %}<option value="{{ item }}">{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>结构位</label>
+        <select name="structure_type">
+          {% for item in structure_options %}<option value="{{ item }}">{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>信号类型</label>
+        <select name="signal_type">
+          {% for item in signal_options %}<option value="{{ item }}">{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>是否按预期运行</label>
+        <select name="moved_as_expected">
+          {% for item in expected_options %}<option value="{{ item }}">{{ item }}</option>{% endfor %}
+        </select>
+      </div>
+      <div><label>盘中截图链接</label><input name="screenshot_link"></div>
+      <div><label>最大浮盈 MFE（R）</label><input name="mfe_r"></div>
+      <div><label>最大回撤 MAE（R）</label><input name="mae_r"></div>
+      <div><label>达到的 RR（如 2 表示 1:2）</label><input name="achieved_rr"></div>
+    </div>
+    <div style="margin-top: 14px;">
+      <label>备注</label>
+      <textarea name="notes"></textarea>
+    </div>
+    <div style="margin-top: 16px;">
+      <button class="btn btn-primary" type="submit">保存信号</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
